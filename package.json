@@ -17,7 +17,7 @@
 		"commands": [
 			{
 				"command": "helloworld.helloWorld",
-				"title": "Hello World"
+				"title": "Hello"
 			}
 		],
 		"keybindings":{
@@ -32,6 +32,30 @@
 							"command": "helloworld.helloWorld",
 							"group": "navigation"
 					}
+			],
+			"editor/title": [
+					{
+							"when": "editorFocus",
+							"command": "helloworld.helloWorld",
+							"group": "navigation"
+					}
+			]
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "beautifulGirl",
+					"title": "美女",
+					"icon": "images/beautifulGirl.svg"
+				}
+			]
+		},
+		"views": {
+			"beautifulGirl": [
+				{
+					"id": "beautifulGirl1",
+					"name": "国内美女"
+				}
 			]
 		}
 	},
