@@ -1,8 +1,10 @@
 {
-	"name": "helloworld",
-	"displayName": "HelloWorld",
+	"publisher": "diaoxr",
+	"name": "build-upload",
+	"displayName": "build-upload",
 	"description": "it is a test",
 	"version": "0.0.1",
+	"repository": "https://github.com/somebody2012/vscode-plugin.git",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -20,11 +22,6 @@
 				"title": "upload"
 			}
 		],
-		"keybindings":{
-			"command": "helloworld.helloWorld",
-			"key": "ctrl+u",
-			"mac": "ctrl+u"
-		},
 		"menus": {
 			"editor/context": [
 					{
@@ -32,30 +29,6 @@
 							"command": "helloworld.helloWorld",
 							"group": "navigation"
 					}
-			],
-			"editor/title": [
-					{
-							"when": "editorFocus",
-							"command": "helloworld.helloWorld",
-							"group": "navigation"
-					}
-			]
-		},
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "beautifulGirl",
-					"title": "美女",
-					"icon": "images/beautifulGirl.svg"
-				}
-			]
-		},
-		"views": {
-			"beautifulGirl": [
-				{
-					"id": "beautifulGirl1",
-					"name": "国内美女"
-				}
 			]
 		}
 	},
