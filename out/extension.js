@@ -11,13 +11,80 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
 let path = require("path");
+let util = require("util");
 let fs = require("fs");
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
-let { exec } = require("child_process");
+const exec = util.promisify(require('child_process').exec);
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
+function findFCClientIndex(nameArr) {
+    let rootName = ["FCClient2", "FCClientCommon", "FCClient"];
+    let index = -1;
+    for (let i = 0; i < rootName.length; i++) {
+        let index1 = nameArr.indexOf(rootName[i]);
+        if (index1 != -1) {
+            index = index1;
+            break;
+        }
+    }
+    return index;
+}
+function buildTrade(buildCWD, buildPath) {
+    return new Promise(resolve => {
+        buildPath = buildPath.replace(/\\/g, "\\\\");
+        let sh = `npm run build:trade ${buildPath}`;
+        let options = {
+            encoding: "utf-8",
+            stdio: [process.stdin, process.stdout, process.stderr],
+            cwd: buildCWD
+        };
+        let res = exec(sh, options, function (err, stdo, stde) {
+            if (err) {
+                vscode.window.showErrorMessage(err.message);
+                resolve(false);
+            }
+            else {
+                vscode.window.showInformationMessage(`编译${buildPath}成功`);
+                resolve(true);
+            }
+        });
+    });
+}
+function uploadFile(localDirPath, filename, remotePath) {
+    return new Promise(resolve => {
+        let localFilePath = path.resolve(localDirPath, filename);
+        localFilePath = localFilePath.replace(/\\/g, "\\\\\\\\\\\\");
+        // let sh = `scp -r -P 22 ${localFilePath} root@10.16.61.50:${remotePath}`//开发
+        let sh = `sftp -P 22 root@10.16.61.50:${remotePath}<<EOF\nput ${localFilePath}\nbye\nEOF`; //开发
+        let sh1 = "sftp -P 22 root@10.16.61.50:/aarm/workspace/www/FCClient/modules/trade/auth/t00040404/t00040404_1<<EOF put e:\\work\\zantong\\stage2xxxxxxxxxxxx\\client\\release\\workspace\\FCClient\\modules\\trade\\auth\\t00040404\\t00040404_1\\a.a EOF";
+        // let sh = `scp -r -P 22 ${localFilePath} root@47.105.154.93:${remotePath}`//阿里云
+        let options = {
+            encoding: "utf-8",
+            stdio: [process.stdin, process.stdout, process.stderr],
+            shell: "D:\\Program Files\\Git\\bin\\bash.exe"
+            // shell:"/usr/bin/bash"
+        };
+        let res = require('child_process').exec(sh, options, function (err, stdo, stde) {
+            if (err) {
+                vscode.window.showErrorMessage(err.message + stde);
+                resolve(false);
+            }
+            else {
+                resolve(true);
+            }
+        });
+        // debugger
+        // require('child_process').spawn("bash",["sftp","-P",22,"root@10.16.61.50",""],{
+        // 	// cwd: this.workspacePath,
+        //   stdio: [process.stdin,process.stdout,process.stderr]
+        // },function(err:string,stdo:string,stde:string){
+        // 	debugger
+        // });
+        // debugger
+    });
+}
 function activate(context) {
     return __awaiter(this, void 0, void 0, function* () {
         // Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -27,20 +94,46 @@ function activate(context) {
         // Now provide the implementation of the command with registerCommand
         // The commandId parameter must match the command field in package.json
         let disposable = vscode.commands.registerCommand('helloworld.helloWorld', (data) => __awaiter(this, void 0, void 0, function* () {
-            vscode.window.showInformationMessage('Hello World111 from HelloWorld 11!');
-            // let sh = `
-            // scp -r -P 22 ~/Desktop/抱持心里基础信息\\(1\\).xlsx root@47.105.154.93:/root/sshTest << EOF
-            // 	ls
-            // 	echo "拷贝成功"
-            // EOF
-            // `
-            let sh = `ssh root@47.105.154.93 << EOF
-			echo "xxxx"
-			ls
-		EOF`;
-            exec(sh, { encoding: "utf-8", stdio: [process.stdin, process.stdout, process.stderr] }, function (err, stdo, stde) {
-                debugger;
+            // vscode.window.showInformationMessage('Hello World111 from HelloWorld 11!');
+            let nameArr = data.fsPath.split(path.sep);
+            let FCClientIndex = findFCClientIndex(nameArr);
+            //"/root/sshTest/modules/trade/zfjs/t00301032"
+            let remotePath = "/aarm/workspace/www/FCClient/" + nameArr.slice(FCClientIndex + 1, -1).join("/");
+            //"e:/work/zantong/client/release/workspace/FCClient2/modules/trade/zfjs/t00301032"
+            let localDirPath = nameArr.slice(0, FCClientIndex).join("/") + "/client/release/workspace/" + nameArr.slice(FCClientIndex, -1).join("/");
+            localDirPath = localDirPath.replace(/FCClient2|FCClientCommon/, "FCClient");
+            //"modules\trade\zfjs\t00301032\App.vue"
+            let buildPath = nameArr.slice(FCClientIndex + 1).join("\\");
+            //build执行命令目录
+            let buildCWD = nameArr.slice(0, FCClientIndex + 1).join(path.sep);
+            vscode.window.showInformationMessage('开始编译');
+            let buildRes = yield buildTrade(buildCWD, buildPath);
+            if (!buildRes)
+                return;
+            let uploadFiles = [];
+            try {
+                uploadFiles = fs.readdirSync(localDirPath);
+                let basename = path.basename(data.fsPath);
+                uploadFiles = uploadFiles.filter(function (name) { return name.includes(basename); });
+            }
+            catch (e) {
+                vscode.window.showErrorMessage(e.message);
+                return;
+            }
+            vscode.window.showInformationMessage("开始上传");
+            let ups = uploadFiles.map(function (filename) {
+                return uploadFile(localDirPath, filename, remotePath);
             });
+            let upsRes = yield Promise.all(ups);
+            let isUpSuccess = upsRes.every(v => v);
+            if (isUpSuccess) {
+                vscode.window.showInformationMessage("上传成功");
+            }
+            // if(copyRes.error){
+            // 	vscode.window.showInformationMessage(copyRes.message);
+            // }else{
+            // 	vscode.window.showInformationMessage(`上传文件${path.basename(data.fsPath)}成功`);
+            // }
         }));
         context.subscriptions.push(disposable);
         function provideHover(document, position, token) {

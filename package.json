@@ -17,7 +17,7 @@
 		"commands": [
 			{
 				"command": "helloworld.helloWorld",
-				"title": "Hello"
+				"title": "upload"
 			}
 		],
 		"keybindings":{
