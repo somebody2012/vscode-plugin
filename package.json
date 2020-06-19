@@ -3,7 +3,7 @@
 	"name": "build-upload",
 	"displayName": "build-upload",
 	"description": "编译本地资源上传到开发环境服务器",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"repository": "https://github.com/somebody2012/vscode-plugin.git",
 	"icon": "images/tools.png",
 	"engines": {
