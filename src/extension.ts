@@ -130,7 +130,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		//"modules\trade\zfjs\t00301032\App.vue"
 		let buildPath = nameArr.slice(FCClientIndex+1).join("\\");
 		if(/\.json$/.test(nameArr[nameArr.length-1])){
-			fs.copyFileSync(data.fsPath,localDirPath);
+			fs.copyFileSync(data.fsPath,localDirPath+"/"+nameArr[nameArr.length-1]);
 			vscode.window.showInformationMessage(`拷贝文件${data.fsPath}->${localDirPath} 成功`)
 		}else{
 			//build执行命令目录
