@@ -13,13 +13,13 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:helloworld.helloWorld"
+		"onCommand:upload"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "helloworld.helloWorld",
+				"command": "upload",
 				"title": "upload"
 			}
 		],
@@ -27,7 +27,7 @@
 			"editor/context": [
 					{
 							"when": "editorFocus",
-							"command": "helloworld.helloWorld",
+							"command": "upload",
 							"group": "navigation"
 					}
 			]

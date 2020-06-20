@@ -113,7 +113,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('helloworld.helloWorld', async(data) => {
+	let disposable = vscode.commands.registerCommand('upload', async(data) => {
 		
 		// vscode.window.showInformationMessage('Hello World111 from HelloWorld 11!');
 		if(!/FCClient2|FCClientCommon|FCClient/.test(data.fsPath)){
